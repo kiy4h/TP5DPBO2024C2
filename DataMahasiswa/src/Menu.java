@@ -6,8 +6,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
-import com.github.lgooddatepicker.components.*; // Import LGoodDatePicker
-import java.time.LocalDate; // For handling date
+import com.github.lgooddatepicker.components.*;
+import java.time.LocalDate; // untuk handle date
 
 public class Menu extends JFrame {
     public static void main(String[] args) {
@@ -91,7 +91,11 @@ public class Menu extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (selectedIndex >= 0) {
-                    deleteData();
+                    int confirm = JOptionPane.showConfirmDialog(null, "Apakah Anda yakin ingin menghapus data ini?",
+                            "Konfirmasi Hapus", JOptionPane.YES_NO_OPTION);
+                    if (confirm == JOptionPane.YES_OPTION) {
+                        deleteData();
+                    }
                 }
             }
         });
@@ -130,7 +134,6 @@ public class Menu extends JFrame {
 
                 // tampilkan button delete
                 deleteButton.setVisible(true);
-
             }
         });
     }
