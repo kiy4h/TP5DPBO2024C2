@@ -1,5 +1,5 @@
 # Janji
-Saya Zakiyah Hasanah dengan NIM 2305274 mengerjakan Latihan Praktikum 5 dalam mata kuliah Desain dan Pemrograman Berorientasi Objek untuk keberkahanNya maka saya tidak melakukan kecurangan seperti yang telah dispesifikasikan. Aamiin.
+Saya Zakiyah Hasanah dengan NIM 2305274 mengerjakan Tugas Praktikum 4 dalam mata kuliah Desain dan Pemrograman Berorientasi Objek untuk keberkahanNya maka saya tidak melakukan kecurangan seperti yang telah dispesifikasikan. Aamiin.
 
 # Desain Program
 Program ini adalah aplikasi sederhana untuk mengelola data mahasiswa menggunakan Java Swing. Aplikasi ini memungkinkan pengguna untuk menambah, mengupdate, dan menghapus data mahasiswa. Data mahasiswa yang disimpan meliputi NIM, nama, jenis kelamin, dan __tanggal lahir__. Program ini menggunakan GUI (Graphical User Interface) untuk memudahkan interaksi pengguna.
