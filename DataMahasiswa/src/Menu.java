@@ -6,8 +6,10 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
+import com.github.lgooddatepicker.components.*; // Import LGoodDatePicker
+import java.time.LocalDate; // For handling date
 
-public class Menu extends JFrame{
+public class Menu extends JFrame {
     public static void main(String[] args) {
         // buat object window
         Menu menu = new Menu();
@@ -49,6 +51,9 @@ public class Menu extends JFrame{
     private JLabel namaLabel;
     private JLabel jenisKelaminLabel;
 
+    private JLabel tanggalLahirLabel;
+    private DatePicker tanggalLahirPicker;
+
     // constructor
     public Menu() {
         // inisialisasi listMahasiswa
@@ -64,9 +69,9 @@ public class Menu extends JFrame{
         titleLabel.setFont(titleLabel.getFont().deriveFont(Font.BOLD, 20f));
 
         // atur isi combo box
-        String[] jenisKelaminData = {"???","Laki-laki", "Perempuan"};
+        String[] jenisKelaminData = { "???", "Laki-laki", "Perempuan" };
         jenisKelaminComboBox.setModel(new DefaultComboBoxModel<>(jenisKelaminData));
-        
+
         // sembunyikan button delete
         deleteButton.setVisible(false);
 
@@ -74,9 +79,9 @@ public class Menu extends JFrame{
         addUpdateButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if(selectedIndex == -1) {
+                if (selectedIndex == -1) {
                     insertData();
-                }else {
+                } else {
                     updateData();
                 }
             }
@@ -85,7 +90,7 @@ public class Menu extends JFrame{
         deleteButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (selectedIndex>=0){
+                if (selectedIndex >= 0) {
                     deleteData();
                 }
             }
@@ -105,14 +110,20 @@ public class Menu extends JFrame{
                 selectedIndex = mahasiswaTable.getSelectedRow();
 
                 // simpan value textfield dan combo box
-                String curNim = mahasiswaTable.getModel().getValueAt(selectedIndex,1).toString();
-                String curNama = mahasiswaTable.getModel().getValueAt(selectedIndex,2).toString();
-                String curJenisKelamin = mahasiswaTable.getModel().getValueAt(selectedIndex,3).toString();
+                String curNim = mahasiswaTable.getModel().getValueAt(selectedIndex, 1).toString();
+                String curNama = mahasiswaTable.getModel().getValueAt(selectedIndex, 2).toString();
+                String curJenisKelamin = mahasiswaTable.getModel().getValueAt(selectedIndex, 3).toString();
+                String curTanggalLahir = mahasiswaTable.getModel().getValueAt(selectedIndex, 4).toString();
 
                 // ubah isi textfield dan combo box
                 nimField.setText(curNim);
                 namaField.setText(curNama);
                 jenisKelaminComboBox.setSelectedItem(curJenisKelamin);
+                if (curTanggalLahir == null || curTanggalLahir.equals("")) {
+                    tanggalLahirPicker.clear(); // Clear the DatePicker if
+                } else {
+                    tanggalLahirPicker.setDate(LocalDate.parse(curTanggalLahir));
+                }
 
                 // ubah button "Add" menjadi "Update"
                 addUpdateButton.setText("Update");
@@ -126,14 +137,20 @@ public class Menu extends JFrame{
 
     public final DefaultTableModel setTable() {
         // tentukan kolom tabel
-        Object[] cols = {"No", "NIM", "Nama", "Jenis Kelamin"};
+        Object[] cols = { "No", "NIM", "Nama", "Jenis Kelamin", "Tanggal Lahir" };
 
         // buat objek tabel dengan kolom yang sudah dibuat
-        DefaultTableModel tmp= new DefaultTableModel(null, cols);
+        DefaultTableModel tmp = new DefaultTableModel(null, cols);
 
         // isi tabel dengan listMahasiswa
-        for (int i=0; i<listMahasiswa.size(); i++) {
-            Object[] row = {i+1, listMahasiswa.get(i).getNim(), listMahasiswa.get(i).getNama(), listMahasiswa.get(i).getJenisKelamin()};
+        for (int i = 0; i < listMahasiswa.size(); i++) {
+            Object[] row = { i + 1,
+                    listMahasiswa.get(i).getNim(),
+                    listMahasiswa.get(i).getNama(),
+                    listMahasiswa.get(i).getJenisKelamin(),
+                    (listMahasiswa.get(i).getTanggalLahir() == null) ? ""
+                            : listMahasiswa.get(i).getTanggalLahir().toString()
+            };
             tmp.addRow(row);
         }
 
@@ -145,9 +162,10 @@ public class Menu extends JFrame{
         String nim = nimField.getText();
         String nama = namaField.getText();
         String jenisKelamin = jenisKelaminComboBox.getSelectedItem().toString();
+        LocalDate tanggalLahir = tanggalLahirPicker.getDate();
 
         // tambahkan data ke dalam list
-        listMahasiswa.add(new Mahasiswa(nim, nama, jenisKelamin));
+        listMahasiswa.add(new Mahasiswa(nim, nama, jenisKelamin, tanggalLahir));
 
         // update tabel
         mahasiswaTable.setModel(setTable());
@@ -165,11 +183,13 @@ public class Menu extends JFrame{
         String nim = nimField.getText();
         String nama = namaField.getText();
         String jenisKelamin = jenisKelaminComboBox.getSelectedItem().toString();
+        LocalDate tanggalLahir = tanggalLahirPicker.getDate();
 
         // ubah data mahasiswa di list
         listMahasiswa.get(selectedIndex).setNim(nim);
         listMahasiswa.get(selectedIndex).setNama(nama);
         listMahasiswa.get(selectedIndex).setJenisKelamin(jenisKelamin);
+        listMahasiswa.get(selectedIndex).setTanggalLahir(tanggalLahir);
 
         // update tabel
         mahasiswaTable.setModel(setTable());
