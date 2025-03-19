@@ -15,7 +15,7 @@ public class Menu extends JFrame {
         Menu menu = new Menu();
 
         // atur ukuran window
-        menu.setSize(600, 400);
+        menu.setSize(600, 600);
 
         // letakkan window di tengah layar
         menu.setLocationRelativeTo(null);
