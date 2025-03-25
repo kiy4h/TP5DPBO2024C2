@@ -70,7 +70,7 @@ public class Menu extends JFrame {
         titleLabel.setFont(titleLabel.getFont().deriveFont(Font.BOLD, 20f));
 
         // atur isi combo box
-        String[] jenisKelaminData = { "???", "Laki-laki", "Perempuan" };
+        String[] jenisKelaminData = { "", "Laki-laki", "Perempuan" };
         jenisKelaminComboBox.setModel(new DefaultComboBoxModel<>(jenisKelaminData));
 
         // sembunyikan button delete
@@ -171,6 +171,29 @@ public class Menu extends JFrame {
         String jenisKelamin = jenisKelaminComboBox.getSelectedItem().toString();
         LocalDate tanggalLahir = tanggalLahirPicker.getDate();
 
+        // input tidak boleh kosong
+        if (nim.isEmpty() || nama.isEmpty() || jenisKelamin.isEmpty() || tanggalLahir == null) {
+            JOptionPane.showMessageDialog(null,
+                    "Semua data harus diisi!\n(NIM, Nama, Jenis Kelamin, dan Tanggal Lahir wajib diisi)",
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        // cek apakah NIM sudah ada
+        try {
+            ResultSet resultSet = database.selectQuery("SELECT COUNT(*) FROM mahasiswa WHERE nim = '" + nim + "'");
+            if (resultSet.next() && resultSet.getInt(1) > 0) {
+                JOptionPane.showMessageDialog(null,
+                        "NIM sudah terdaftar!\nGunakan NIM yang berbeda",
+                        "Error",
+                        JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
         // tambahkan data ke dalam db
         String sql = "INSERT INTO mahasiswa VALUES (null, '" + nim + "', '" + nama + "', '" + jenisKelamin + "', '"
                 + tanggalLahir + "')";
@@ -194,11 +217,20 @@ public class Menu extends JFrame {
         String jenisKelamin = jenisKelaminComboBox.getSelectedItem().toString();
         LocalDate tanggalLahir = tanggalLahirPicker.getDate();
 
+        // input tidak boleh kosong
+        if (nim.isEmpty() || nama.isEmpty() || jenisKelamin.isEmpty() || tanggalLahir == null) {
+            JOptionPane.showMessageDialog(null,
+                    "Semua data harus diisi!\n(NIM, Nama, Jenis Kelamin, dan Tanggal Lahir wajib diisi)",
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
         // ubah data mahasiswa di db
         String sql = "UPDATE mahasiswa SET " +
                 "nama = '" + nama + "', " +
                 "jenis_kelamin = '" + jenisKelamin + "', " +
-                "tanggal_lahir = " + (tanggalLahir != null ? "'" + tanggalLahir + "'" : "NULL") + " " +
+                "tanggal_lahir = '" + tanggalLahir + "' " +
                 "WHERE nim = '" + nim + "'";
         database.insertUpdateDeleteQuery(sql);
 
