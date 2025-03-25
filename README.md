@@ -2,35 +2,22 @@
 Saya Zakiyah Hasanah dengan NIM 2305274 mengerjakan Tugas Praktikum 5 dalam mata kuliah Desain dan Pemrograman Berorientasi Objek untuk keberkahanNya maka saya tidak melakukan kecurangan seperti yang telah dispesifikasikan.
 
 # Desain Program
-Program ini adalah aplikasi sederhana untuk mengelola data mahasiswa menggunakan Java Swing. Aplikasi ini memungkinkan pengguna untuk menambah, mengupdate, dan menghapus data mahasiswa dengan validasi input yang ketat. Data mahasiswa yang disimpan meliputi:
-- NIM (wajib diisi, harus unik)
-- Nama (wajib diisi)
-- Jenis kelamin (wajib dipilih)
-- Tanggal lahir (wajib diisi)
-
-Program ini menggunakan GUI (Graphical User Interface) untuk memudahkan interaksi pengguna dan database MySQL untuk penyimpanan data.
-
-### Penjelasan Class
-* **Mahasiswa.java** - Kelas ini merepresentasikan entitas mahasiswa dengan atribut NIM, nama, jenis kelamin, dan tanggal lahir. Kelas ini menyediakan getter dan setter untuk setiap atribut.
-* **Menu.java** - Kelas antarmuka utama yang berisi komponen GUI dan logika aplikasi. Menggunakan:
-  - Text field untuk NIM dan nama
-  - Combo box untuk jenis kelamin (opsi: "", "Laki-laki", "Perempuan")
-  - DatePicker untuk memilih tanggal lahir (wajib diisi)
-  - Tabel untuk menampilkan data
-  - Tombol untuk Add/Update, Delete, dan Cancel
-* **Database.java** - Kelas yang menangani koneksi dan operasi database MySQL.
-
+Program ini adalah aplikasi sederhana untuk mengelola data mahasiswa menggunakan Java Swing GUI dan database MySQL untuk penyimpanan data. Aplikasi ini memungkinkan pengguna untuk menambah, mengupdate, dan menghapus data mahasiswa dengan validasi input. Data mahasiswa yang disimpan meliputi:
+- NIM (harus diisi, harus unik)
+- Nama (harus diisi)
+- Jenis kelamin (harus dipilih)
+- Tanggal lahir (harus diisi)
 
 ### Fitur Program dengan Validasi
 1. **Tambah Data** 
-   - Semua field wajib diisi
+   - Semua field harus diisi
    - NIM harus unik (tidak boleh duplikat)
    - Jenis kelamin harus dipilih (tidak boleh kosong)
-   - Tanggal lahir wajib dipilih
+   - Tanggal lahir harus dipilih
 
 2. **Update Data** 
-   - Semua field wajib diisi
-   - Validasi sama seperti tambah data (kecuali pengecekan unik NIM)
+   - Semua field harus diisi
+   - Validasi sama seperti tambah data (kecuali pengecekan unik NIM, karena field NIM dikunci)
 
 3. **Hapus Data** 
    - Konfirmasi dialog sebelum menghapus
@@ -39,13 +26,26 @@ Program ini menggunakan GUI (Graphical User Interface) untuk memudahkan interaks
 4. **Clear Form** 
    - Mengosongkan semua field
    - Mereset DatePicker
-   - Mengembalikan tombol "Update" ke "Add"
+   - Mematikan tombol "Update" dan "Delete", serta menyalakan tombol "Add"
+
+### Penjelasan Class
+* **Mahasiswa.java** - Kelas ini merepresentasikan entitas mahasiswa dengan atribut NIM, nama, jenis kelamin, dan tanggal lahir. Kelas ini menyediakan getter dan setter untuk setiap atribut.
+* **Menu.java** - Kelas antarmuka utama yang berisi komponen GUI dan logika aplikasi. Menggunakan:
+  - Text field untuk NIM dan nama
+  - Combo box untuk jenis kelamin (opsi: "", "Laki-laki", "Perempuan")
+  - DatePicker untuk memilih tanggal lahir (harus diisi)
+  - Tabel untuk menampilkan data
+  - Tombol untuk Add/Update, Delete, dan Cancel
+* **Database.java** - Kelas yang menangani koneksi dan operasi database MySQL.
+
 
 # Penjelasan Alur
 ### 1. **Inisialisasi Program** 
-   - Membuka koneksi database
-   - Memuat data mahasiswa ke tabel
-   - Menyiapkan form input
+```mermaid
+%%{init: {'themeVariables': {'fontSize': '10px'}}%%
+graph TD
+    A[Start] --> B[Koneksi Database] --> C[Load Data ke Tabel] --> D[Tampilkan Form Kosong]
+```
 
 ### 2. **Menambah Data**
 ```mermaid
@@ -69,35 +69,25 @@ Program ini menggunakan GUI (Graphical User Interface) untuk memudahkan interaks
         G --> H[Clear Form]
 ```
 
-  Proteksi:
-  - Harus memilih data terlebih dahulu
-  - Konfirmasi popup muncul sebelum hapus
-  - Notifikasi setelah berhasil dihapus
-
 ### 4. **Menghapus Data**
-
 ```mermaid
     graph TD
-        A[Pilih Data] --> B[Konfirmasi]
-        B -->|Yes| C[Delete dari Database]
-        B -->|No| D[Batal]
+        A[Pilih Data] --> B{Konfirmasi}
+        B -->|Ya| C[Delete dari Database]
+        B -->|Tidak| D[Batal]
         C --> E[Refresh Tabel]
         E --> F[Clear Form]
+        F --> G[Notifikasi berhasil dihapus]
 ```
-
-Proteksi:
-- Harus memilih data terlebih dahulu
-- Konfirmasi popup muncul sebelum hapus
-- Notifikasi setelah berhasil dihapus
 
 ### 5. **Validasi Input**
 ```mermaid
 graph LR
     A[NIM Kosong] --> E[Error]
+    F[NIM Duplikat] --> E
     B[Nama Kosong] --> E
     C[Jenis Kelamin Kosong] --> E
     D[Tanggal Lahir Kosong] --> E
-    F[NIM Duplikat] --> E
 ```
 
 # Dokumentasi
