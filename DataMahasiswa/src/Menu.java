@@ -8,6 +8,7 @@ import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import com.github.lgooddatepicker.components.*;
 import java.time.LocalDate; // untuk handle date
+import java.sql.*;
 
 public class Menu extends JFrame {
     public static void main(String[] args) {
@@ -37,6 +38,7 @@ public class Menu extends JFrame {
     private int selectedIndex = -1;
     // list untuk menampung semua mahasiswa
     private ArrayList<Mahasiswa> listMahasiswa;
+    private Database database;
 
     private JPanel mainPanel;
     private JTextField nimField;
@@ -59,8 +61,7 @@ public class Menu extends JFrame {
         // inisialisasi listMahasiswa
         listMahasiswa = new ArrayList<>();
 
-        // isi listMahasiswa
-        populateList();
+        database = new Database();
 
         // isi tabel mahasiswa
         mahasiswaTable.setModel(setTable());
@@ -91,11 +92,7 @@ public class Menu extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (selectedIndex >= 0) {
-                    int confirm = JOptionPane.showConfirmDialog(null, "Apakah Anda yakin ingin menghapus data ini?",
-                            "Konfirmasi Hapus", JOptionPane.YES_NO_OPTION);
-                    if (confirm == JOptionPane.YES_OPTION) {
-                        deleteData();
-                    }
+                    deleteData();
                 }
             }
         });
@@ -117,7 +114,8 @@ public class Menu extends JFrame {
                 String curNim = mahasiswaTable.getModel().getValueAt(selectedIndex, 1).toString();
                 String curNama = mahasiswaTable.getModel().getValueAt(selectedIndex, 2).toString();
                 String curJenisKelamin = mahasiswaTable.getModel().getValueAt(selectedIndex, 3).toString();
-                String curTanggalLahir = mahasiswaTable.getModel().getValueAt(selectedIndex, 4).toString();
+                Object tmp = mahasiswaTable.getModel().getValueAt(selectedIndex, 4);
+                String curTanggalLahir = (tmp != null) ? tmp.toString() : "";
 
                 // ubah isi textfield dan combo box
                 nimField.setText(curNim);
@@ -145,18 +143,24 @@ public class Menu extends JFrame {
         // buat objek tabel dengan kolom yang sudah dibuat
         DefaultTableModel tmp = new DefaultTableModel(null, cols);
 
-        // isi tabel dengan listMahasiswa
-        for (int i = 0; i < listMahasiswa.size(); i++) {
-            Object[] row = { i + 1,
-                    listMahasiswa.get(i).getNim(),
-                    listMahasiswa.get(i).getNama(),
-                    listMahasiswa.get(i).getJenisKelamin(),
-                    (listMahasiswa.get(i).getTanggalLahir() == null) ? ""
-                            : listMahasiswa.get(i).getTanggalLahir().toString()
-            };
-            tmp.addRow(row);
-        }
+        try {
+            ResultSet resultSet = database.selectQuery("SELECT * FROM mahasiswa");
+            // isi tabel dengan listMahasiswa
+            int i = 0;
+            while (resultSet.next()) {
+                Object[] row = new Object[cols.length];
+                row[0] = i + 1; // nomor nya
+                row[1] = resultSet.getString("nim");
+                row[2] = resultSet.getString("nama");
+                row[3] = resultSet.getString("jenis_kelamin");
+                row[4] = resultSet.getString("tanggal_lahir");
+                tmp.addRow(row);
+                i++;
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
 
+        }
         return tmp;
     }
 
@@ -167,8 +171,10 @@ public class Menu extends JFrame {
         String jenisKelamin = jenisKelaminComboBox.getSelectedItem().toString();
         LocalDate tanggalLahir = tanggalLahirPicker.getDate();
 
-        // tambahkan data ke dalam list
-        listMahasiswa.add(new Mahasiswa(nim, nama, jenisKelamin, tanggalLahir));
+        // tambahkan data ke dalam db
+        String sql = "INSERT INTO mahasiswa VALUES (null, '" + nim + "', '" + nama + "', '" + jenisKelamin + "', '"
+                + tanggalLahir + "')";
+        database.insertUpdateDeleteQuery(sql);
 
         // update tabel
         mahasiswaTable.setModel(setTable());
@@ -188,11 +194,13 @@ public class Menu extends JFrame {
         String jenisKelamin = jenisKelaminComboBox.getSelectedItem().toString();
         LocalDate tanggalLahir = tanggalLahirPicker.getDate();
 
-        // ubah data mahasiswa di list
-        listMahasiswa.get(selectedIndex).setNim(nim);
-        listMahasiswa.get(selectedIndex).setNama(nama);
-        listMahasiswa.get(selectedIndex).setJenisKelamin(jenisKelamin);
-        listMahasiswa.get(selectedIndex).setTanggalLahir(tanggalLahir);
+        // ubah data mahasiswa di db
+        String sql = "UPDATE mahasiswa SET " +
+                "nama = '" + nama + "', " +
+                "jenis_kelamin = '" + jenisKelamin + "', " +
+                "tanggal_lahir = " + (tanggalLahir != null ? "'" + tanggalLahir + "'" : "NULL") + " " +
+                "WHERE nim = '" + nim + "'";
+        database.insertUpdateDeleteQuery(sql);
 
         // update tabel
         mahasiswaTable.setModel(setTable());
@@ -206,8 +214,19 @@ public class Menu extends JFrame {
     }
 
     public void deleteData() {
-        // hapus data dari list
-        listMahasiswa.remove(selectedIndex);
+        // hapus data dari db
+        String nim = nimField.getText(); // Ambil data NIM dari form atau tabel yang dipilih
+
+        // Konfirmasi sebelum menghapus
+        int confirm = JOptionPane.showConfirmDialog(null, "Apakah Anda yakin ingin menghapus data ini?",
+                "Konfirmasi Hapus", JOptionPane.YES_NO_OPTION);
+        if (confirm != JOptionPane.YES_OPTION) {
+            return;
+        }
+
+        // Delete data from database
+        String sql = "DELETE FROM mahasiswa WHERE nim = '" + nim + "'";
+        database.insertUpdateDeleteQuery(sql);
 
         // update tabel
         mahasiswaTable.setModel(setTable());
@@ -235,28 +254,5 @@ public class Menu extends JFrame {
         // ubah selectedIndex menjadi -1 (tidak ada baris yang dipilih)
         selectedIndex = -1;
 
-    }
-
-    private void populateList() {
-        listMahasiswa.add(new Mahasiswa("2203999", "Amelia Zalfa Julianti", "Perempuan"));
-        listMahasiswa.add(new Mahasiswa("2202292", "Muhammad Iqbal Fadhilah", "Laki-laki"));
-        listMahasiswa.add(new Mahasiswa("2202346", "Muhammad Rifky Afandi", "Laki-laki"));
-        listMahasiswa.add(new Mahasiswa("2210239", "Muhammad Hanif Abdillah", "Laki-laki"));
-        listMahasiswa.add(new Mahasiswa("2202046", "Nurainun", "Perempuan"));
-        listMahasiswa.add(new Mahasiswa("2205101", "Kelvin Julian Putra", "Laki-laki"));
-        listMahasiswa.add(new Mahasiswa("2200163", "Rifanny Lysara Annastasya", "Perempuan"));
-        listMahasiswa.add(new Mahasiswa("2202869", "Revana Faliha Salma", "Perempuan"));
-        listMahasiswa.add(new Mahasiswa("2209489", "Rakha Dhifiargo Hariadi", "Laki-laki"));
-        listMahasiswa.add(new Mahasiswa("2203142", "Roshan Syalwan Nurilham", "Laki-laki"));
-        listMahasiswa.add(new Mahasiswa("2200311", "Raden Rahman Ismail", "Laki-laki"));
-        listMahasiswa.add(new Mahasiswa("2200978", "Ratu Syahirah Khairunnisa", "Perempuan"));
-        listMahasiswa.add(new Mahasiswa("2204509", "Muhammad Fahreza Fauzan", "Laki-laki"));
-        listMahasiswa.add(new Mahasiswa("2205027", "Muhammad Rizki Revandi", "Laki-laki"));
-        listMahasiswa.add(new Mahasiswa("2203484", "Arya Aydin Margono", "Laki-laki"));
-        listMahasiswa.add(new Mahasiswa("2200481", "Marvel Ravindra Dioputra", "Laki-laki"));
-        listMahasiswa.add(new Mahasiswa("2209889", "Muhammad Fadlul Hafiizh", "Laki-laki"));
-        listMahasiswa.add(new Mahasiswa("2206697", "Rifa Sania", "Perempuan"));
-        listMahasiswa.add(new Mahasiswa("2207260", "Imam Chalish Rafidhul Haque", "Laki-laki"));
-        listMahasiswa.add(new Mahasiswa("2204343", "Meiva Labibah Putri", "Perempuan"));
     }
 }
