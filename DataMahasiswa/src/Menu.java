@@ -119,6 +119,7 @@ public class Menu extends JFrame {
 
                 // ubah isi textfield dan combo box
                 nimField.setText(curNim);
+                nimField.setEditable(false); // disable edit on NIM field
                 namaField.setText(curNama);
                 jenisKelaminComboBox.setSelectedItem(curJenisKelamin);
                 if (curTanggalLahir == null || curTanggalLahir.equals("")) {
@@ -275,7 +276,9 @@ public class Menu extends JFrame {
         // kosongkan semua texfield dan combo box
         nimField.setText("");
         namaField.setText("");
+        nimField.setEditable(true); // enable again
         jenisKelaminComboBox.setSelectedIndex(0);
+        tanggalLahirPicker.clear();
 
         // ubah button "Update" menjadi "Add"
         addUpdateButton.setText("Add");
